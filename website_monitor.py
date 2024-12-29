@@ -154,7 +154,7 @@ def send_email(subject, body):
         print(f"Error sending email: {e}")
 
 # Main code to monitor the website
-website_url = "http://www.techsacare.com"  # Replace with your website URL
+website_url = "http://qa.techsacare.com"  # Replace with your website URL
 
 # Check the website status once
 check_website(website_url)
