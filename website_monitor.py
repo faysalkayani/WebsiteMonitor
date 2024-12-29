@@ -8,7 +8,7 @@ def check_website(url):
     try:
         response = requests.get(url)
         if response.status_code == 200:
-            send_email("Website is up", f"The website {url} is up and running! \n Welcome jeee")
+            send_email("Website is up", f"The website {url} is up and running! \n HAPPY MONITORING")
         else:
             send_email("Website is down", f"The website {url} is down with status code {response.status_code}.")
     except requests.RequestException as e:
@@ -37,9 +37,9 @@ def send_email(subject, body):
         print(f"Error sending email: {e}")
 
 # Main code to monitor the website
-website_url = "http://www.techsasdsddcare.com"  # Replace with your website URL
+website_url = "http://www.techsacare.com"  # Replace with your website URL
 
 # Run the check every 5 minutes
 while True:
     check_website(website_url)
-    time.sleep(300)  # Sleep for 300 seconds (5 minutes)
+    time.sleep(100)  # Sleep for 300 seconds (5 minutes)
