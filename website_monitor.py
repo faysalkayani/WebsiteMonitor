@@ -37,7 +37,7 @@ def send_email(subject, body):
         print(f"Error sending email: {e}")
 
 # Main code to monitor the website
-website_url = "http://www.techsacare.com"  # Replace with your website URL
+website_url = "http://www.techsasdsddcare.com"  # Replace with your website URL
 
 # Run the check every 5 minutes
 while True:
