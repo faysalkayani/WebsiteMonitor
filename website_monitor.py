@@ -207,6 +207,6 @@ website_url = "http://www.techsacare.com"  # Replace with your website URL
 
 # Run the check every 5 minutes
 # while True:
-    check_website(website_url)
+check_website(website_url)
     # time.sleep(300)  # Sleep for 300 seconds (5 minutes)
 
