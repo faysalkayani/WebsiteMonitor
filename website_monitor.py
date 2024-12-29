@@ -1,5 +1,6 @@
 import smtplib
 import requests
+import os
 import time
 
 # Function to check if the website is up
@@ -15,19 +16,21 @@ def check_website(url):
 
 # Function to send an email notification
 def send_email(subject, body):
+    # Fetching the secrets from environment variables
+    smtp_user = os.getenv('SMTP_USER')  # Secret SMTP_USER
+    smtp_password = os.getenv('SMTP_PASSWORD')  # Secret SMTP_PASSWORD
+    recipient_email = os.getenv('RECIPIENT_EMAIL')  # Secret RECIPIENT_EMAIL
+
     # StackMail SMTP server details
     smtp_server = "smtp.stackmail.com"
     smtp_port = 587
-    sender_email = "faisal.ahmed@techsasoft.net"  # Replace with your email
-    sender_password = "Killer@420"  # Replace with your email password (or App Password if 2FA enabled)
-    recipient_email = "faisalkiani06@gmail.com"  # Replace with the recipient's email
 
     try:
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()  # Secure the connection
-        server.login(sender_email, sender_password)
+        server.login(smtp_user, smtp_password)
         message = f"Subject: {subject}\n\n{body}"
-        server.sendmail(sender_email, recipient_email, message)
+        server.sendmail(smtp_user, recipient_email, message)
         print(f"Email sent to {recipient_email}")
         server.quit()
     except Exception as e:
