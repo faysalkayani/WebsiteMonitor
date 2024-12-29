@@ -1,0 +1,36 @@
+name: Website Monitoring
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'  # This schedules the job to run every 5 minutes
+  workflow_dispatch: # Allows you to trigger manually if needed
+
+jobs:
+  monitor-website:
+    runs-on: ubuntu-latest  # The action will run on an Ubuntu runner
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      # Step 2: Set up Python
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install requests
+
+      # Step 4: Run the Python script to monitor the website
+      - name: Monitor Website
+        run: |
+          python website_monitor.py
+        env:
+          SMTP_USER: ${{ secrets.SMTP_USER }}  # GitHub secret for email username
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}  # GitHub secret for email password
+          RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}  # GitHub secret for recipient email
