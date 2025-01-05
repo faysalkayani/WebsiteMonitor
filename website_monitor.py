@@ -8,7 +8,7 @@ from datetime import datetime
 # Function to check if the website is up
 def check_website(url):
     try:
-        print(f"Checking website: {url}")
+        print("Checking website: {}".format(url))  # Using .format() instead of f-string
         response = requests.get(url)
         
         # Collect website details
@@ -17,39 +17,33 @@ def check_website(url):
         headers = response.headers
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
-        print(f"Response status code: {status_code}")
+        print("Response status code: {}".format(status_code))  # Using .format() instead of f-string
         
-        if status_code == 200:
-            body = f"""
-            <p>The website <strong>{url}</strong> is up and running!</p>
-            <p><strong>Status Code:</strong> {status_code}</p>
-            <p><strong>Response Time:</strong> {response_time} seconds</p>
-            <p><strong>Last Checked:</strong> {current_time}</p>
-            <p><strong>Headers:</strong><br>{format_headers(headers)}</p>
-            <p><strong>Happy Monitoring!</strong></p>
-            """
-            send_email("Website is Up", body)
-        else:
-            body = f"""
-            <p>The website <strong>{url}</strong> is down with status code <strong>{status_code}</strong>.</p>
-            <p><strong>Response Time:</strong> {response_time} seconds</p>
-            <p><strong>Last Checked:</strong> {current_time}</p>
-            <p><strong>Headers:</strong><br>{format_headers(headers)}</p>
-            """
+        # Only send an email if the website is down (i.e., status code is not 200)
+        if status_code != 200:
+            body = """
+            <p>The website <strong>{}</strong> is down with status code <strong>{}</strong>.</p>
+            <p><strong>Response Time:</strong> {} seconds</p>
+            <p><strong>Last Checked:</strong> {}</p>
+            <p><strong>Headers:</strong><br>{}</p>
+            """.format(url, status_code, response_time, current_time, format_headers(headers))
             send_email("Website is Down", body)
+        else:
+            print("Website is up and running. No email sent.")  # You can print or log this information
+
     except requests.RequestException as e:
-        print(f"Error while checking website: {e}")
-        body = f"""
-        <p>The website <strong>{url}</strong> could not be reached due to an error: {e}</p>
-        <p><strong>Last Checked:</strong> {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</p>
-        """
+        print("Error while checking website: {}".format(e))  # Using .format() instead of f-string
+        body = """
+        <p>The website <strong>{}</strong> could not be reached due to an error: {}</p>
+        <p><strong>Last Checked:</strong> {}</p>
+        """.format(url, e, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         send_email("Website is Down", body)
 
 # Function to format headers into HTML
 def format_headers(headers):
     formatted_headers = "<ul>"
     for key, value in headers.items():
-        formatted_headers += f"<li><strong>{key}:</strong> {value}</li>"
+        formatted_headers += "<li><strong>{}:</strong> {}</li>".format(key, value)
     formatted_headers += "</ul>"
     return formatted_headers
 
@@ -60,12 +54,12 @@ def send_email(subject, body):
     smtp_password = os.getenv('SMTP_PASSWORD')  # Secret SMTP_PASSWORD
     recipient_email = os.getenv('RECIPIENT_EMAIL')  # Secret RECIPIENT_EMAIL
 
-    # StackMail SMTP server details
-    smtp_server = "smtp.stackmail.com"
+    # Gmail SMTP server details (adjust if using a different provider)
+    smtp_server = "smtp.gmail.com"
     smtp_port = 587
 
     # Create the HTML content with CSS
-    email_html = f"""
+    email_html = """
     <html>
     <head>
         <style>
@@ -118,10 +112,10 @@ def send_email(subject, body):
     <body>
         <div class="container">
             <div class="header">
-                <h2>{subject}</h2>
+                <h2>{}</h2>
             </div>
             <div class="content">
-                {body}
+                {}
             </div>
             <div class="footer">
                 <p>Website Monitoring Service</p>
@@ -129,7 +123,7 @@ def send_email(subject, body):
         </div>
     </body>
     </html>
-    """
+    """.format(subject, body)
 
     # Set up the MIME message
     msg = MIMEMultipart()
@@ -148,10 +142,10 @@ def send_email(subject, body):
         server.starttls()  # Secure the connection
         server.login(smtp_user, smtp_password)
         server.sendmail(smtp_user, recipient_email, msg.as_string())
-        print(f"Email sent to {recipient_email}")
+        print("Email sent to {}".format(recipient_email))  # Using .format() instead of f-string
         server.quit()
     except Exception as e:
-        print(f"Error sending email: {e}")
+        print("Error sending email: {}".format(e))  # Using .format() instead of f-string
 
 # Main code to monitor the website
 website_url = "http://qa.techsacare.com"  # Replace with your website URL
