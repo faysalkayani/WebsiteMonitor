@@ -2,7 +2,7 @@ name: Website Monitoring
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # This schedules the job to run every 10 minutes
+    - cron: '0 * * * *'  # This schedules the job to run every hour at the start of the hour
   workflow_dispatch:  # Allows you to trigger manually if needed
 
 jobs:
@@ -29,8 +29,14 @@ jobs:
       # Step 4: Monitor Website
       - name: Monitor Website
         run: |
-          python website_monitor.py
+          python website_monitor.py || echo "Error occurred during website monitoring"  # Log error if it fails
         env:
           SMTP_USER: ${{ secrets.SMTP_USER }}
           SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
           RECIPIENT_EMAIL: ${{ secrets.RECIPIENT_EMAIL }}
+
+      # Optional: Step to log errors (optional if you want more debugging)
+      - name: Capture logs
+        run: |
+          echo "Checking logs..."
+          tail -n 100 /var/log/syslog  # Capture the last 100 lines of system logs (helpful for troubleshooting)
