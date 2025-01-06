@@ -5,6 +5,26 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 
+# List of recipient emails
+recipient_emails = [
+    "s.abdullah@techsasoft.net",
+    "ehsan.raza@techsasoft.net",
+    "M.Usman@techsasoft.net",
+    "aqib.javaid@techsasoft.net",
+    "m.hamza@techsasoft.net",
+    "mohsin.raza@techsasoft.net",
+    "shaheryar.ayub@techsasoft.net",
+    "aqsa.qureshi@techsasoft.net",
+    "haider.naseem@techsasoft.net",
+    "sarmad.khan@techsasoft.net",
+    "saaim.raza@techsasoft.net",
+    "atif.rashid@techsasoft.net",
+    "ahmad.nawaz@techsasoft.net"
+]
+
+# Join the list into a comma-separated string and use it in the email
+recipient_email = ", ".join(recipient_emails)
+
 # Function to check if the website is up
 def check_website(url):
     try:
@@ -52,7 +72,6 @@ def send_email(subject, body):
     # Fetching the secrets from environment variables
     smtp_user = os.getenv('SMTP_USER')  # Secret SMTP_USER
     smtp_password = os.getenv('SMTP_PASSWORD')  # Secret SMTP_PASSWORD
-    recipient_email = os.getenv('RECIPIENT_EMAIL')  # Secret RECIPIENT_EMAIL
 
     # Gmail SMTP server details (adjust if using a different provider)
     smtp_server = "smtp.gmail.com"
@@ -141,14 +160,19 @@ def send_email(subject, body):
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()  # Secure the connection
         server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, recipient_email, msg.as_string())
+        server.sendmail(smtp_user, recipient_email.split(", "), msg.as_string())
         print("Email sent to {}".format(recipient_email))  # Using .format() instead of f-string
         server.quit()
     except Exception as e:
         print("Error sending email: {}".format(e))  # Using .format() instead of f-string
 
-# Main code to monitor the website
-website_url = "http://qa.techsacare.com"  # Replace with your website URL
+# Main code to monitor the websites
+website_urls = [
+    "http://qa.techsacare.com",   
+    "http://mobile.techsacare.com",  
+    "https://techsacare.com/"      
+]
 
-# Check the website status once
-check_website(website_url)
+# Check the websites
+for url in website_urls:
+    check_website(url)
