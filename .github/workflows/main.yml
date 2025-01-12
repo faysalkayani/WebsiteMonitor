@@ -39,4 +39,4 @@ jobs:
       - name: Capture logs
         run: |
           echo "Checking logs..."
-          tail -n 100 /var/log/syslog  # Capture the last 100 lines of system logs (helpful for troubleshooting)
+          tail -n 100 /var/log/syslog  # Capture the last 100 lines of system logs (helpful for troubleshootings)
