@@ -7,19 +7,19 @@ from datetime import datetime
 
 # List of recipient emails
 recipient_emails = [
-    # "s.abdullah@techsasoft.net",
-    # "ehsan.raza@techsasoft.net",
-    # "M.Usman@techsasoft.net",
-    # "aqib.javaid@techsasoft.net",
-    # "m.hamza@techsasoft.net",
-    # "mohsin.raza@techsasoft.net",
-    # "shaheryar.ayub@techsasoft.net",
-    # "aqsa.qureshi@techsasoft.net",
-    # "haider.naseem@techsasoft.net",
-    # "sarmad.khan@techsasoft.net",
-    # "saaim.raza@techsasoft.net",
-    # "atif.rashid@techsasoft.net",
-    # "ahmad.nawaz@techsasoft.net"
+    "s.abdullah@techsasoft.net",
+    "ehsan.raza@techsasoft.net",
+    "M.Usman@techsasoft.net",
+    "aqib.javaid@techsasoft.net",
+    "m.hamza@techsasoft.net",
+    "mohsin.raza@techsasoft.net",
+    "shaheryar.ayub@techsasoft.net",
+    "aqsa.qureshi@techsasoft.net",
+    "haider.naseem@techsasoft.net",
+    "sarmad.khan@techsasoft.net",
+    "saaim.raza@techsasoft.net",
+    "atif.rashid@techsasoft.net",
+    "ahmad.nawaz@techsasoft.net",
     "faisal.ahmed@techsasoft.net"
 ]
 
