@@ -7,7 +7,7 @@ from datetime import datetime
 
 # List of recipient emails
 recipient_emails = [
-    #  "s.abdullah@techsasoft.net",
+    # "s.abdullah@techsasoft.net",
     # "ehsan.raza@techsasoft.net",
     # "M.Usman@techsasoft.net",
     # "aqib.javaid@techsasoft.net",
@@ -19,7 +19,7 @@ recipient_emails = [
     # "sarmad.khan@techsasoft.net",
     # "saaim.raza@techsasoft.net",
     # "atif.rashid@techsasoft.net",
-    # "ahmad.nawaz@techsasoft.net",
+    # "ahmad.nawaz@techsasoft.net"
     "faisal.ahmed@techsasoft.net"
 ]
 
@@ -53,18 +53,8 @@ def check_website(url):
         else:
             prev_status = None
 
-        # If the website was DOWN previously and is now UP, send an email
-        if is_up and prev_status is not True:
-            body = """
-            <p>The website <strong>{}</strong> is back up with status code <strong>{}</strong>.</p>
-            <p><strong>Response Time:</strong> {} seconds</p>
-            <p><strong>Last Checked:</strong> {}</p>
-            <p><strong>Headers:</strong><br>{}</p>
-            """.format(url, status_code, response_time, current_time, format_headers(headers))
-            send_email("Website is Back Up", body)
-        
         # If the website was UP previously and is now DOWN, send an email
-        elif not is_up and prev_status is not False:
+        if not is_up and prev_status is not False:
             body = """
             <p>The website <strong>{}</strong> is down with status code <strong>{}</strong>.</p>
             <p><strong>Response Time:</strong> {} seconds</p>
