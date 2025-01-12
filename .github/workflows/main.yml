@@ -2,7 +2,7 @@ name: Website Monitoring
 
 on:
   schedule:
-     - cron: '*/2 * * * *'  # This schedules the job to run every 2 minutes
+     - cron: '*/1 * * * *'  # This schedules the job to run every 2 minutes
   workflow_dispatch:  # Allows you to trigger manually if needed
 
 jobs:
