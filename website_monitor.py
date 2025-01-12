@@ -7,26 +7,31 @@ from datetime import datetime
 
 # List of recipient emails
 recipient_emails = [
-    "s.abdullah@techsasoft.net",
-    "ehsan.raza@techsasoft.net",
-    "M.Usman@techsasoft.net",
-    "aqib.javaid@techsasoft.net",
-    "m.hamza@techsasoft.net",
-    "mohsin.raza@techsasoft.net",
-    "shaheryar.ayub@techsasoft.net",
-    "aqsa.qureshi@techsasoft.net",
-    "haider.naseem@techsasoft.net",
-    "sarmad.khan@techsasoft.net",
-    "saaim.raza@techsasoft.net",
-    "atif.rashid@techsasoft.net",
-    "ahmad.nawaz@techsasoft.net"
+    # "s.abdullah@techsasoft.net",
+    # "ehsan.raza@techsasoft.net",
+    # "M.Usman@techsasoft.net",
+    # "aqib.javaid@techsasoft.net",
+    # "m.hamza@techsasoft.net",
+    # "mohsin.raza@techsasoft.net",
+    # "shaheryar.ayub@techsasoft.net",
+    # "aqsa.qureshi@techsasoft.net",
+    # "haider.naseem@techsasoft.net",
+    # "sarmad.khan@techsasoft.net",
+    # "saaim.raza@techsasoft.net",
+    # "atif.rashid@techsasoft.net",
+    # "ahmad.nawaz@techsasoft.net"
+    "faisal.ahmed@techsasoft.net"
 ]
 
 # Join the list into a comma-separated string and use it in the email
 recipient_email = ", ".join(recipient_emails)
 
+# Dictionary to track the previous status of websites (True for UP, False for DOWN)
+previous_status = {}
+
 # Function to check if the website is up
 def check_website(url):
+    global previous_status
     try:
         print("Checking website: {}".format(url))  # Using .format() instead of f-string
         response = requests.get(url)
@@ -39,8 +44,17 @@ def check_website(url):
         
         print("Response status code: {}".format(status_code))  # Using .format() instead of f-string
         
-        # Only send an email if the website is down (i.e., status code is not 200)
-        if status_code != 200:
+        # Determine if the website is UP or DOWN
+        is_up = (status_code == 200)
+        
+        # Check the previous status of the website
+        if url in previous_status:
+            prev_status = previous_status[url]
+        else:
+            prev_status = None
+
+        # If the website was UP previously and is now DOWN, send an email
+        if not is_up and prev_status is not False:
             body = """
             <p>The website <strong>{}</strong> is down with status code <strong>{}</strong>.</p>
             <p><strong>Response Time:</strong> {} seconds</p>
@@ -48,8 +62,9 @@ def check_website(url):
             <p><strong>Headers:</strong><br>{}</p>
             """.format(url, status_code, response_time, current_time, format_headers(headers))
             send_email("Website is Down", body)
-        else:
-            print("Website is up and running. No email sent.")  # You can print or log this information
+        
+        # Update the status in the dictionary
+        previous_status[url] = is_up
 
     except requests.RequestException as e:
         print("Error while checking website: {}".format(e))  # Using .format() instead of f-string
