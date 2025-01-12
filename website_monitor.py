@@ -48,13 +48,20 @@ def check_website(url):
         is_up = (status_code == 200)
         
         # Check the previous status of the website
-        if url in previous_status:
-            prev_status = previous_status[url]
-        else:
-            prev_status = None
+        prev_status = previous_status.get(url, None)
 
-        # If the website was UP previously and is now DOWN, send an email
-        if not is_up and prev_status is not False:
+        # If the website was previously DOWN and is now UP, send an email
+        if is_up and prev_status is False:
+            body = """
+            <p>The website <strong>{}</strong> is back up with status code <strong>{}</strong>.</p>
+            <p><strong>Response Time:</strong> {} seconds</p>
+            <p><strong>Last Checked:</strong> {}</p>
+            <p><strong>Headers:</strong><br>{}</p>
+            """.format(url, status_code, response_time, current_time, format_headers(headers))
+            send_email("Website is Back Up", body)
+
+        # If the website is DOWN and was not DOWN previously, send an email
+        elif not is_up and prev_status is not False:
             body = """
             <p>The website <strong>{}</strong> is down with status code <strong>{}</strong>.</p>
             <p><strong>Response Time:</strong> {} seconds</p>
