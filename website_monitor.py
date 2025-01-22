@@ -4,6 +4,7 @@ import os
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
+import pytz
 
 # List of recipient emails
 recipient_emails = [
@@ -29,14 +30,28 @@ recipient_email = ", ".join(recipient_emails)
 # Dictionary to track the previous status of websites (True for UP, False for DOWN)
 previous_status = {}
 
-# Function to check if the website is up
+# Function to convert GMT to Pakistan Standard Time (PKT)
+def convert_gmt_to_local(gmt_time_str, time_zone="Asia/Karachi"):
+    # Define the time zone you want to convert to (Pakistan Standard Time)
+    local_tz = pytz.timezone(time_zone)
+    
+    gmt_time = datetime.strptime(gmt_time_str, "%a, %d %b %Y %H:%M:%S GMT")
+    
+
+    gmt_time = pytz.utc.localize(gmt_time)
+    local_time = gmt_time.astimezone(local_tz)
+    
+    # Format the time to a string (e.g., '2025-01-22 13:14:15')
+    return local_time.strftime("%Y-%m-%d %H:%M:%S")
+
+#Function to check that web is up
 def check_website(url):
     global previous_status
     try:
-        print("Checking website: {}".format(url))  # Using .format() instead of f-string
+        print("Checking website: {}".format(url))  
         response = requests.get(url)
         
-        # Collect website details
+        
         status_code = response.status_code
         response_time = response.elapsed.total_seconds()  # Response time in seconds
         headers = response.headers
@@ -84,16 +99,22 @@ def check_website(url):
 # Function to format headers into HTML
 def format_headers(headers):
     formatted_headers = "<ul>"
+    
     for key, value in headers.items():
-        formatted_headers += "<li><strong>{}:</strong> {}</li>".format(key, value)
+        if key.lower() == "date":  # Convert the 'Date' header to local PKT time
+            local_time = convert_gmt_to_local(value)  # Convert to PKT
+            formatted_headers += "<li><strong>{}:</strong> {}</li>".format(key, local_time)
+        else:
+            formatted_headers += "<li><strong>{}:</strong> {}</li>".format(key, value)
+    
     formatted_headers += "</ul>"
     return formatted_headers
 
 # Function to send an email notification with HTML content
 def send_email(subject, body):
-    # Fetching the secrets from environment variables
-    smtp_user = os.getenv('SMTP_USER')  # Secret SMTP_USER
-    smtp_password = os.getenv('SMTP_PASSWORD')  # Secret SMTP_PASSWORD
+    # Directly set the SMTP credentials here
+    smtp_user = "techsacare@gmail.com"  # Your email
+    smtp_password = "sdpyyiladgkbmwmz"  # Your app password
 
     # Gmail SMTP server details (adjust if using a different provider)
     smtp_server = "smtp.gmail.com"
@@ -198,3 +219,4 @@ website_urls = [
 # Check the websites
 for url in website_urls:
     check_website(url)
+
