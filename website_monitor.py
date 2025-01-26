@@ -127,9 +127,13 @@ def format_headers(headers):
 
 # Function to send an email notification with HTML content
 def send_email(subject, body):
-    # Directly set the SMTP credentials here
-    smtp_user = "techsacare@gmail.com"  # Your email
-    smtp_password = "sdpyyiladgkbmwmz"  # Your app password
+    # Fetch SMTP credentials from environment variables
+    smtp_user = os.getenv("SMTP_USER")  # Fetch email from environment variable
+    smtp_password = os.getenv("SMTP_PASSWORD")  # Fetch password from environment variable
+
+    if not smtp_user or not smtp_password:
+        logging.error("SMTP credentials are not set in environment variables.")
+        return
 
     # Gmail SMTP server details (adjust if using a different provider)
     smtp_server = "smtp.gmail.com"
