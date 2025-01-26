@@ -5,6 +5,10 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from datetime import datetime
 import pytz
+import logging
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
 
 # List of recipient emails
 recipient_emails = [
@@ -30,34 +34,42 @@ recipient_email = ", ".join(recipient_emails)
 # Dictionary to track the previous status of websites (True for UP, False for DOWN)
 previous_status = {}
 
+# List of websites to monitor
+website_urls = [
+    "http://qa.techsacare.com",   
+    "http://mobile.techsacare.com",  
+    "https://techsacare.com/"      
+]
+
+# Initialize previous_status with True for all websites (assume they are UP initially)
+for url in website_urls:
+    previous_status[url] = True
+
 # Function to convert GMT to Pakistan Standard Time (PKT)
 def convert_gmt_to_local(gmt_time_str, time_zone="Asia/Karachi"):
     # Define the time zone you want to convert to (Pakistan Standard Time)
     local_tz = pytz.timezone(time_zone)
     
     gmt_time = datetime.strptime(gmt_time_str, "%a, %d %b %Y %H:%M:%S GMT")
-    
-
     gmt_time = pytz.utc.localize(gmt_time)
     local_time = gmt_time.astimezone(local_tz)
     
     # Format the time to a string (e.g., '2025-01-22 13:14:15')
     return local_time.strftime("%Y-%m-%d %H:%M:%S")
 
-#Function to check that web is up
+# Function to check that web is up
 def check_website(url):
     global previous_status
     try:
-        print("Checking website: {}".format(url))  
+        logging.info("Checking website: {}".format(url))  
         response = requests.get(url)
-        
         
         status_code = response.status_code
         response_time = response.elapsed.total_seconds()  # Response time in seconds
         headers = response.headers
         current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         
-        print("Response status code: {}".format(status_code))  # Using .format() instead of f-string
+        logging.info("Response status code: {}".format(status_code))  # Using .format() instead of f-string
         
         # Determine if the website is UP or DOWN
         is_up = (status_code == 200)
@@ -74,9 +86,10 @@ def check_website(url):
             <p><strong>Headers:</strong><br>{}</p>
             """.format(url, status_code, response_time, current_time, format_headers(headers))
             send_email("Website is Back Up", body)
+            logging.info("Website {} is back up. Email sent.".format(url))
 
-        # If the website is DOWN and was not DOWN previously, send an email
-        elif not is_up and prev_status is not False:
+        # If the website is DOWN and was not DOWN previously (including first-time DOWN), send an email
+        elif not is_up and (prev_status is None or prev_status is not False):
             body = """
             <p>The website <strong>{}</strong> is down with status code <strong>{}</strong>.</p>
             <p><strong>Response Time:</strong> {} seconds</p>
@@ -84,17 +97,19 @@ def check_website(url):
             <p><strong>Headers:</strong><br>{}</p>
             """.format(url, status_code, response_time, current_time, format_headers(headers))
             send_email("Website is Down", body)
+            logging.info("Website {} is down. Email sent.".format(url))
         
         # Update the status in the dictionary
         previous_status[url] = is_up
 
     except requests.RequestException as e:
-        print("Error while checking website: {}".format(e))  # Using .format() instead of f-string
+        logging.error("Error while checking website: {}".format(e))  # Using .format() instead of f-string
         body = """
         <p>The website <strong>{}</strong> could not be reached due to an error: {}</p>
         <p><strong>Last Checked:</strong> {}</p>
         """.format(url, e, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
         send_email("Website is Down", body)
+        logging.error("Failed to check website {}. Email sent.".format(url))
 
 # Function to format headers into HTML
 def format_headers(headers):
@@ -199,24 +214,16 @@ def send_email(subject, body):
     msg.attach(MIMEText(email_html, 'html'))
 
     try:
-        print("Sending email...")
+        logging.info("Sending email...")
         server = smtplib.SMTP(smtp_server, smtp_port)
         server.starttls()  # Secure the connection
         server.login(smtp_user, smtp_password)
         server.sendmail(smtp_user, recipient_email.split(", "), msg.as_string())
-        print("Email sent to {}".format(recipient_email))  # Using .format() instead of f-string
+        logging.info("Email sent to {}".format(recipient_email))  # Using .format() instead of f-string
         server.quit()
     except Exception as e:
-        print("Error sending email: {}".format(e))  # Using .format() instead of f-string
+        logging.error("Error sending email: {}".format(e))  # Using .format() instead of f-string
 
 # Main code to monitor the websites
-website_urls = [
-    "http://qa.techsacare.com",   
-    "http://mobile.techsacare.com",  
-    "https://techsacare.com/"      
-]
-
-# Check the websites
 for url in website_urls:
     check_website(url)
-
