@@ -67,9 +67,12 @@ def check_website(url):
         status_code = response.status_code
         response_time = response.elapsed.total_seconds()  # Response time in seconds
         headers = response.headers
-        current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        
+        # Get current time in PKT
+        current_time = datetime.now(pytz.timezone("Asia/Karachi")).strftime("%Y-%m-%d %H:%M:%S")
         
         logging.info("Response status code: {}".format(status_code))  # Using .format() instead of f-string
+        logging.info("Last Checked Time (PKT): {}".format(current_time))  # Debug log
         
         # Determine if the website is UP or DOWN
         is_up = (status_code == 200)
@@ -107,7 +110,7 @@ def check_website(url):
         body = """
         <p>The website <strong>{}</strong> could not be reached due to an error: {}</p>
         <p><strong>Last Checked:</strong> {}</p>
-        """.format(url, e, datetime.now().strftime("%Y-%m-%d %H:%M:%S"))
+        """.format(url, e, datetime.now(pytz.timezone("Asia/Karachi")).strftime("%Y-%m-%d %H:%M:%S"))
         send_email("Website is Down", body)
         logging.error("Failed to check website {}. Email sent.".format(url))
 
