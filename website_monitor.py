@@ -80,6 +80,10 @@ def check_website(url):
         # Check the previous status of the website
         prev_status = previous_status.get(url, None)
 
+        # Debug logs for status transition
+        logging.info("Previous Status: {}".format(prev_status))
+        logging.info("Current Status: {}".format(is_up))
+
         # If the website was previously DOWN and is now UP, send an email
         if is_up and prev_status is False:
             body = """
@@ -130,6 +134,7 @@ def format_headers(headers):
 
 # Function to send an email notification with HTML content
 def send_email(subject, body):
+    logging.info("Preparing to send email with subject: {}".format(subject))
     # Fetch SMTP credentials from environment variables
     smtp_user = os.getenv("SMTP_USER")  # Fetch email from environment variable
     smtp_password = os.getenv("SMTP_PASSWORD")  # Fetch password from environment variable
