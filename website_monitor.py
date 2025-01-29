@@ -41,20 +41,16 @@ website_urls = [
     "https://techsacare.com/"      
 ]
 
-# Initialize previous_status with True for all websites (assume they are UP initially)
+# Initialize previous_status with None for all websites (to handle first-time check)
 for url in website_urls:
-    previous_status[url] = None 
+    previous_status[url] = None
 
 # Function to convert GMT to Pakistan Standard Time (PKT)
 def convert_gmt_to_local(gmt_time_str, time_zone="Asia/Karachi"):
-    # Define the time zone you want to convert to (Pakistan Standard Time)
     local_tz = pytz.timezone(time_zone)
-    
     gmt_time = datetime.strptime(gmt_time_str, "%a, %d %b %Y %H:%M:%S GMT")
     gmt_time = pytz.utc.localize(gmt_time)
     local_time = gmt_time.astimezone(local_tz)
-    
-    # Format the time to a string (e.g., '2025-01-22 13:14:15')
     return local_time.strftime("%Y-%m-%d %H:%M:%S")
 
 # Function to check that web is up
@@ -71,8 +67,8 @@ def check_website(url):
         # Get current time in PKT
         current_time = datetime.now(pytz.timezone("Asia/Karachi")).strftime("%Y-%m-%d %H:%M:%S")
         
-        logging.info("Response status code: {}".format(status_code))  # Using .format() instead of f-string
-        logging.info("Last Checked Time (PKT): {}".format(current_time))  # Debug log
+        logging.info("Response status code: {}".format(status_code))
+        logging.info("Last Checked Time (PKT): {}".format(current_time))
         
         # Determine if the website is UP or DOWN
         is_up = (status_code == 200)
@@ -83,6 +79,13 @@ def check_website(url):
         # Debug logs for status transition
         logging.info("Previous Status: {}".format(prev_status))
         logging.info("Current Status: {}".format(is_up))
+
+        # First-time check: If previous status is None, we simply set the current status
+        if prev_status is None:
+            # Set the initial status without sending email
+            previous_status[url] = is_up
+            logging.info("First-time check for {}: Status set to {}".format(url, is_up))
+            return  # No email needed yet, exit the function
 
         # If the website was previously DOWN and is now UP, send an email
         if is_up and prev_status is False:
@@ -110,7 +113,7 @@ def check_website(url):
         previous_status[url] = is_up
 
     except requests.RequestException as e:
-        logging.error("Error while checking website: {}".format(e))  # Using .format() instead of f-string
+        logging.error("Error while checking website: {}".format(e))
         body = """
         <p>The website <strong>{}</strong> could not be reached due to an error: {}</p>
         <p><strong>Last Checked:</strong> {}</p>
@@ -124,7 +127,7 @@ def format_headers(headers):
     
     for key, value in headers.items():
         if key.lower() == "date":  # Convert the 'Date' header to local PKT time
-            local_time = convert_gmt_to_local(value)  # Convert to PKT
+            local_time = convert_gmt_to_local(value)
             formatted_headers += "<li><strong>{}:</strong> {}</li>".format(key, local_time)
         else:
             formatted_headers += "<li><strong>{}:</strong> {}</li>".format(key, value)
@@ -135,19 +138,16 @@ def format_headers(headers):
 # Function to send an email notification with HTML content
 def send_email(subject, body):
     logging.info("Preparing to send email with subject: {}".format(subject))
-    # Fetch SMTP credentials from environment variables
-    smtp_user = os.getenv("SMTP_USER")  # Fetch email from environment variable
-    smtp_password = os.getenv("SMTP_PASSWORD")  # Fetch password from environment variable
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_password = os.getenv("SMTP_PASSWORD")
 
     if not smtp_user or not smtp_password:
         logging.error("SMTP credentials are not set in environment variables.")
         return
 
-    # Gmail SMTP server details (adjust if using a different provider)
     smtp_server = "smtp.gmail.com"
     smtp_port = 587
 
-    # Create the HTML content with CSS
     email_html = """
     <html>
     <head>
@@ -214,27 +214,23 @@ def send_email(subject, body):
     </html>
     """.format(subject, body)
 
-    # Set up the MIME message
     msg = MIMEMultipart()
     msg['From'] = smtp_user
     msg['Subject'] = subject
-
-    # Combine recipient emails into a comma-separated string
     msg['To'] = recipient_email
 
-    # Attach the HTML content
     msg.attach(MIMEText(email_html, 'html'))
 
     try:
         logging.info("Sending email...")
         server = smtplib.SMTP(smtp_server, smtp_port)
-        server.starttls()  # Secure the connection
+        server.starttls()
         server.login(smtp_user, smtp_password)
         server.sendmail(smtp_user, recipient_email.split(", "), msg.as_string())
-        logging.info("Email sent to {}".format(recipient_email))  # Using .format() instead of f-string
+        logging.info("Email sent to {}".format(recipient_email))
         server.quit()
     except Exception as e:
-        logging.error("Error sending email: {}".format(e))  # Using .format() instead of f-string
+        logging.error("Error sending email: {}".format(e))
 
 # Main code to monitor the websites
 for url in website_urls:
