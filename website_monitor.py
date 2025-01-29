@@ -43,7 +43,7 @@ website_urls = [
 
 # Initialize previous_status with True for all websites (assume they are UP initially)
 for url in website_urls:
-    previous_status[url] = True
+    previous_status[url] = None 
 
 # Function to convert GMT to Pakistan Standard Time (PKT)
 def convert_gmt_to_local(gmt_time_str, time_zone="Asia/Karachi"):
